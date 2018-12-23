@@ -62,6 +62,8 @@ export class Board {
     private m_currBallDirection: Direction = Direction.Left;
     private m_currBallColor: BallColor = BallColor.Blue;
 
+    private m_outputBalls: BallColor[] = [];
+
     constructor(size: Point) {
         this.m_size = size;
 
@@ -154,7 +156,7 @@ export class Board {
     render(canvasContext: CanvasRenderingContext2D, canvasSize: [number, number]) {
         let padding = [32, 25, 0, 25];
         let xScale = (canvasSize[0] - padding[1] - padding[3]) / this.m_size[Coordinate.X];
-        let yScale = (canvasSize[1] - padding[0] - padding[2]) / (this.m_size[Coordinate.Y] + 0.65);
+        let yScale = (canvasSize[1] - padding[0] - padding[2]) / (this.m_size[Coordinate.Y] + 0.65 + 1);
         let scale = Math.min(xScale, yScale);
 
         canvasContext.setTransform(scale, 0, 0, scale, 0.5 * canvasSize[0], padding[0]);
@@ -176,7 +178,12 @@ export class Board {
         }
 
         const currPeg = this.m_pegs[this.m_currBallPos[0]][this.m_currBallPos[1]];
-        this.renderBall(canvasContext, currPeg);
+
+        if (currPeg) {
+            this.renderBall(canvasContext, currPeg);
+        }
+
+        this.renderCollector(canvasContext);
         canvasContext.translate(0, -1);
     }
 
@@ -214,6 +221,31 @@ export class Board {
         }
     }
 
+    private renderCollector(canvasContext: CanvasRenderingContext2D) {
+        const halfWidth = 0.5 * (this.m_size[Coordinate.X] - 1);
+        let path = new Path2D(`M -${halfWidth} ${this.m_size[1]} L ${halfWidth} ${this.m_size[1] + 0.5} l 0.2 0 l 0 -0.25`);
+
+        canvasContext.beginPath();
+        canvasContext.lineWidth = 0.15;
+        canvasContext.strokeStyle = "darkslategrey";
+        canvasContext.stroke(path);
+
+        const ballRadius = 0.1;
+        let x_0 = halfWidth;
+        let m = 0.5 / (2 * halfWidth);
+        let b = this.m_size[1] - m * -halfWidth;
+
+        for (let i = 0; i < Math.min(this.m_outputBalls.length, 30); i++) {
+            let x = x_0 - i * ballRadius * 2;
+            let y = m * x + b - 2 * ballRadius;
+
+            canvasContext.beginPath();
+            canvasContext.arc(x, y, ballRadius, 0, 2 * Math.PI);
+            canvasContext.fillStyle = this.m_outputBalls[i] === BallColor.Blue ? "blue" : "red";
+            canvasContext.fill();
+        }
+    }
+
     private renderBall(canvasContext: CanvasRenderingContext2D, peg: Peg) {
         if (peg.piece != null) {
             let ballPos: [number, number];
@@ -234,7 +266,7 @@ export class Board {
     private onAnimationComplete() {
         const peg: Peg = this.m_pegs[this.m_currBallPos[0]][this.m_currBallPos[1]];
 
-        if (peg.piece != null) {
+        if (peg && peg.piece != null) {
             const outDir = peg.piece.operate(this.m_currBallDirection);
 
             if (outDir != Direction.None) {
@@ -243,7 +275,8 @@ export class Board {
 
                 const halfWidth = 0.5 * (this.m_size[0] - 1);
                 if ((this.m_currBallPos[0] - halfWidth != 0 && this.m_currBallPos[1] >= this.m_size[1] - 1) || (this.m_currBallPos[0] - halfWidth === 0 && this.m_currBallPos[1] >= this.m_size[1])) {
-                    
+                    this.m_outputBalls.push(this.m_currBallColor);
+
                     if (this.m_currBallPos[0] < halfWidth) {
                         if (this.m_numBalls[BallColor.Blue] > 0) {
                             this.m_currBallColor = BallColor.Blue;
