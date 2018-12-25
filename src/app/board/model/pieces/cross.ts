@@ -1,4 +1,5 @@
-import { Piece, Direction } from '../piece';
+import { Piece } from '../piece';
+import { Direction } from '../ball';
 
 /** The cross piece outputs the ball in the direction across from the direction it came in from. */
 export class Cross extends Piece {

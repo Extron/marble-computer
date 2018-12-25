@@ -1,3 +1,28 @@
-<div #canvasContainer>
-    <canvas #canvas width="1000" height="1000"></canvas>
+<div class="panel">
+    <mat-toolbar>
+        <span><button mat-button (click)="configureBoard()">Configuration</button></span>
+        <span><button mat-button (click)="clearBoard()">Clear Board</button></span>
+    </mat-toolbar>
+    <div #canvasContainer class="canvasContainer mat-elevation-z-inset" (click)="clickBoard($event)">
+        <canvas #canvas width="1000" height="1000" draggable="true" (dragstart)="dragBoard($event)"></canvas>
+        <div #pieceWidget class="pieceWidget mat-elevation-z2" [hidden]="selectedPiece === null">
+            <span>
+                <button mat-icon-button color="primary" (click)="flipSelectedPiece($event)">
+                    <mat-icon>compare_arrows</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="deleteSelectedPiece($event)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </span>
+        </div>
+    </div>
+    <mat-toolbar class="toolbar">
+            <span style="flex: 1 1 auto"></span>
+            <span><button mat-raised-button color="primary" [disabled]="board.running" (click)="start()"><mat-icon>play_arrow</mat-icon></button></span>
+            <span><button mat-raised-button [disabled]="!board.running" (click)="pause()"><mat-icon>pause</mat-icon></button></span>
+            <span><button mat-raised-button (click)="restart()"><mat-icon>replay</mat-icon></button></span>
+            <span class="toolbarSpacer"></span>
+            <span><mat-slider min="0.5" max="8" step="0.25" [(ngModel)]="board.animationSpeed"></mat-slider></span>
+            <span style="flex: 1 1 auto"></span>
+    </mat-toolbar>
 </div>

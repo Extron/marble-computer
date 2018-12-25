@@ -1,0 +1,15 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+ h1 {
+     flex: 0 0 auto;
+     margin: 12px 0;
+ }
+
+.toolboxContent {
+    background: lightgrey;
+    margin: 12px 32px;
+    flex: 1;
+}

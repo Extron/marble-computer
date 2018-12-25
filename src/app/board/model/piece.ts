@@ -1,27 +1,37 @@
-export enum Direction {
-    Left = -1,
-    Right = 1,
-    None = 0
-}
+import { Direction } from './ball';
 
 export abstract class Piece {
     /** The orientation of the piece. */
     protected m_orientation: Direction;
+    protected _rotation: number = 0;
 
     /** Gets the piece's orientation. */
     get orientation() {
         return this.m_orientation;
     }
 
+
+    /** The position of the piece on the board. */
+    protected _position: { x: number, y: number } = { x: 0, y: 0 };
+
+    /** Gets the piece's board position. */
+    get position() {
+        return this._position;
+    }
+
+
+    /** The color of the piece to use when rendering. */
     abstract get color(): string;
 
+    /** The line width of the piece to use when rendering. */
     abstract get lineWidth(): number;
+
 
     constructor() {
         if (this.isSymmetric()) {
             this.m_orientation = Direction.None;
         } else {
-            this.m_orientation = Direction.Left;
+            this.m_orientation = Direction.Right;
         }
     }
 
@@ -34,19 +44,55 @@ export abstract class Piece {
     abstract operate(input: Direction): Direction;
 
     /**
+     * Attaches this piece to the board at the specified position.
+     * @param position - The board position to attach the piece at.
+     */
+    attachToBoard(position: { x: number, y: number }) {
+        this._position = position;
+    }
+
+    /**
+     * Removes this piece from the board.
+     */
+    removeFromBoard() {
+        this._position = { x: 0, y: 0 };
+    }
+
+    /**
      * Renders the piece to an HTML canvas.
      * @param canvasContext - The canvas context to render to.
      * @param position - The position of the piece on the board.
      */
-    render(canvasContext: CanvasRenderingContext2D, position: [number, number]): void {
-        canvasContext.translate(position[0] - 0.5, position[1] - 0.5);
+    render(canvasContext: CanvasRenderingContext2D, showShadow: boolean = false): void {
+        const transform = canvasContext.getTransform();
+
+        const scale = this.m_orientation < 0 ? -1 : 1;
+        canvasContext.translate(this._position.x, this._position.y);
+        canvasContext.rotate(this._rotation);
+        canvasContext.translate(-this._position.x, -this._position.y);
+        canvasContext.translate(this._position.x - scale * 0.5, this._position.y - 0.5);
+        canvasContext.scale(scale, 1);
+
         canvasContext.beginPath();
         canvasContext.strokeStyle = this.color;
         canvasContext.lineWidth = this.lineWidth;
         canvasContext.lineCap = "round";
+
+        if (showShadow) {
+            canvasContext.shadowColor = "darkgrey";
+            canvasContext.shadowBlur = 4;
+            canvasContext.shadowOffsetY = 4;
+        }
+
         let path = this.svgPath();
         canvasContext.stroke(new Path2D(path));
-        canvasContext.translate(-position[0] + 0.5, -position[1] + 0.5);
+        canvasContext.setTransform(transform);
+
+        if (showShadow) {
+            canvasContext.shadowColor = "transparent";
+            canvasContext.shadowBlur = 0;
+            canvasContext.shadowOffsetY = 0;
+        }
     }
 
     /**
@@ -55,14 +101,18 @@ export abstract class Piece {
      * @param input - The direction the ball was input into the piece.
      * @returns - The ball's position within the piece at the specified time, in the piece's coordinates from [-0.5, -0.5] to [0.5, 0.5].
      */
-    animate(time: number, input: Direction): [number, number] {
+    animate(time: number, input: Direction): { x: number, y: number } {
+        this.onAnimate(time);
+
         let path = window.document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', this.ballPath(input));
         const length = path.getTotalLength();
 
         const point = path.getPointAtLength(time * length);
-        return [point.x, point.y];
+        return point;``
     }
+
+    protected onAnimate(time: number) { }
 
     /**
      * Gets whether this piece is symmetric.

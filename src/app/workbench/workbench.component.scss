@@ -1,0 +1,20 @@
+.panel {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: 100%;
+}
+
+.boardContainer {
+    flex: 3;
+}
+
+.toolboxContainer {
+    flex: 0 0 320px;
+    height: 100%;
+}
+
+.heldPieceContainer {
+    position: absolute;
+    cursor: grab;
+}

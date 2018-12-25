@@ -1,4 +1,5 @@
-import { Piece, Direction } from '../piece';
+import { Piece } from '../piece';
+import { Direction } from '../ball';
 
 /** The terminal piece outputs nothing, instead holding the ball and terminating the program. */
 export class Terminal extends Piece {
@@ -14,7 +15,7 @@ export class Terminal extends Piece {
         return Direction.None;
     }
 
-    protected svgPath() {
+    protected svgPath(): string {
         return `
             M 0.15 0.35
             A 0.25 0.35 0 0 0 0 0.65

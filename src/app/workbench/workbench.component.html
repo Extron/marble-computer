@@ -1,0 +1,11 @@
+<div #panel class="panel">
+    <div #boardContainer class="boardContainer">
+        <app-board #board (piecePickedUp)="piecePickedUpFromBoard($event)"></app-board>
+    </div>
+    <div class="toolboxContainer">
+        <app-toolbox #toolbox (piecePickedUp)="piecePickedUpFromToolbar($event)"></app-toolbox>
+    </div>
+    <div #heldPieceContainer class="heldPieceContainer" [hidden]="!isHoldingPiece">
+        <app-piece #heldPiece></app-piece>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+<div class="panel mat-elevation-z4">
+    <h1 class="mat-h1" align="center">Parts</h1>
+    <div class="toolboxContent mat-elevation-z-inset">
+        <mat-grid-list cols="2" rowHeight="100px">
+            <mat-grid-tile
+                *ngFor="let piece of pieces">
+                <app-piece draggable="true" (dragstart)="dragPiece($event, piece.type)" [piece]="piece.piece"></app-piece>
+            </mat-grid-tile>
+        </mat-grid-list>
+    </div>
+</div>
